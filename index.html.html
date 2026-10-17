@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Per Andreina</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&family=Pinyon+Script&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --night: #EFC6CF;
+    --deep: #E3A9B9;
+    --olive: #26361F;
+    --chart: #C8C36A;
+    --pink: #F0CBD3;
+    --cream: #FBF9EE;
+    --fuchsia: #B0235F;
+    --orange: #E2783A;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --night: #EFC6CF; } }
+  :root[data-theme="dark"] { --night: #EFC6CF; }
+
+  *, *::before, *::after { box-sizing: inherit; }
+  html { height: 100%; background: var(--night); scroll-padding-top: env(safe-area-inset-top, 0px); }
+  body {
+    margin: 0; min-height: 100%; background: var(--night); color: var(--olive);
+    font-family: "Cormorant Garamond", "Iowan Old Style", Georgia, serif;
+    font-size: 1.25rem; font-weight: 500; line-height: 1.45;
+    overflow-x: hidden; -webkit-font-smoothing: antialiased;
+  }
+  .script { font-family: "Pinyon Script", "Snell Roundhand", cursive; font-weight: 400; text-transform: none; letter-spacing: 0; }
+  .caps { text-transform: uppercase; font-weight: 400; letter-spacing: .02em; line-height: 1.02; }
+
+  /* sfondo: bagliori e fiori */
+  #garden {
+    position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0;
+    background:
+      radial-gradient(55% 32% at 10% 22%, rgba(251,249,238,.65), transparent 70%),
+      radial-gradient(60% 34% at 95% 78%, rgba(226,120,58,.26), transparent 70%),
+      radial-gradient(90% 50% at 50% 0%, #F9E4E6, transparent 80%),
+      linear-gradient(var(--night), var(--deep));
+  }
+  #garden svg { position: absolute; transform: translate(-50%, -50%) rotate(var(--r, 0deg)); filter: blur(var(--b, 0px)) drop-shadow(0 8px 14px rgba(90,20,50,.22)); }
+  @media (prefers-reduced-motion: no-preference) {
+    #garden svg { animation: sway 8s ease-in-out infinite alternate; animation-delay: var(--d, 0s); }
+    @keyframes sway {
+      from { transform: translate(-50%, -50%) rotate(calc(var(--r, 0deg) - 3deg)); }
+      to   { transform: translate(-50%, -50%) rotate(calc(var(--r, 0deg) + 3deg)); }
+    }
+  }
+  main { position: relative; z-index: 1; }
+
+  /* schermata regalo */
+  #gift {
+    min-height: 100vh; min-height: 100svh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; padding: 2rem 1.5rem; gap: clamp(1.5rem, 4.5svh, 2.75rem); transition: opacity .5s ease;
+  }
+  #gift.gone { opacity: 0; }
+  .frame {
+    width: 100%; max-width: 26rem; border: 1px solid rgba(38,54,31,.75); border-radius: 22px;
+    padding: 1.6rem 1rem 1.4rem; background: rgba(251,249,238,.4); backdrop-filter: blur(2px);
+  }
+  .frame .script { display: block; font-size: clamp(3rem, 15vw, 4.2rem); line-height: 1; margin-bottom: -.9rem; position: relative; color: var(--fuchsia); }
+  #gift h1 { margin: 0; font-size: clamp(2.6rem, 13vw, 4.6rem); }
+  #box { width: min(56vw, 250px); height: auto; overflow: visible; cursor: pointer; filter: drop-shadow(0 14px 18px rgba(90,20,50,.3)); }
+  #lid { transform-origin: 100px 78px; transition: transform .7s cubic-bezier(.3,1.4,.5,1), opacity .5s .3s; }
+  #box.open #lid { transform: translate(18px, -90px) rotate(22deg); opacity: 0; }
+  @media (prefers-reduced-motion: no-preference) {
+    #box:not(.open) { animation: nudge 2.6s ease-in-out infinite; }
+    @keyframes nudge {
+      0%, 70%, 100% { transform: rotate(0); }
+      76% { transform: rotate(-4deg); } 84% { transform: rotate(4deg); } 92% { transform: rotate(-2deg); }
+    }
+  }
+  button {
+    font: inherit; font-style: italic; font-size: 1.25rem; font-weight: 600; letter-spacing: .02em;
+    background: var(--chart); color: var(--olive); border: 0; border-radius: 50%/100%;
+    border-radius: 999px; padding: .7rem 2.2rem; cursor: pointer;
+  }
+  button:active { transform: scale(.97); }
+  button:focus-visible, #box:focus-visible { outline: 2px solid var(--olive); outline-offset: 5px; }
+  .bit { position: fixed; left: 50%; top: 50%; z-index: 5; pointer-events: none; }
+
+  /* rivelazione */
+  #reveal { display: none; opacity: 0; transition: opacity .9s ease; text-align: center; }
+  #reveal.on { display: block; }
+  #reveal.in { opacity: 1; }
+  .col { max-width: 34rem; margin: 0 auto; padding: 0 1.5rem; }
+
+  .intro { padding: 5.5rem 0 6rem; min-height: 100vh; min-height: 100svh; display: flex; align-items: center; }
+  .intro .col { width: 100%; }
+  .intro .script { font-size: clamp(2.4rem, 9.5vw, 3rem); line-height: 1; color: var(--fuchsia); margin: 0 0 1.2rem; }
+  h2 { margin: 0; font-size: clamp(2.1rem, 9.6vw, 3.4rem); }
+  h2:focus { outline: none; }
+  .punch { font-style: italic; font-weight: 500; font-size: clamp(1.6rem, 7vw, 2.3rem); line-height: 1.15; color: var(--fuchsia); margin: 1.6rem 0 0; }
+
+  .what { position: relative; background: var(--chart); color: var(--olive); padding: 6rem 0 4.5rem; }
+  .ribbon {
+    position: absolute; top: -1.5rem; left: -6%; width: 112%; transform: rotate(-2.5deg);
+    background: var(--olive); color: var(--pink); overflow: hidden; padding: .55rem 0;
+    font-size: 1.35rem; font-style: italic; white-space: nowrap;
+  }
+  .track { display: flex; width: max-content; }
+  .track span { padding-right: 1.2rem; }
+  .track i { font-style: normal; color: var(--chart); padding-right: 1.2rem; }
+  @media (prefers-reduced-motion: no-preference) {
+    .track { animation: slide 26s linear infinite; }
+    @keyframes slide { to { transform: translateX(-50%); } }
+  }
+  h3 { margin: 0 0 2.75rem; font-size: clamp(1.9rem, 8.4vw, 2.8rem); }
+  .what ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 2.75rem; }
+  .what li svg { width: clamp(112px, 30vw, 136px); height: auto; display: block; margin: 0 auto .7rem; }
+  .what strong { display: block; font-size: 1.55rem; margin-bottom: .35rem; }
+  .what li span { display: block; max-width: 27ch; margin: 0 auto; }
+  .what li em { font-style: italic; }
+
+  .scallop { height: 22px; background-repeat: repeat-x; background-size: 44px 22px; background-position: center top; }
+  .scallop.c { background-image: radial-gradient(circle at 22px 0, var(--chart) 21px, transparent 22px); }
+  .scallop.k { background-image: radial-gradient(circle at 22px 0, var(--cream) 21px, transparent 22px); }
+
+  .when { background: var(--cream); color: var(--olive); padding-bottom: 4rem; }
+  .when .bouquet { width: min(78vw, 300px); height: auto; display: block; margin: 1.5rem auto 0; }
+  .when .script { font-size: 2.8rem; line-height: 1; color: var(--fuchsia); margin: .5rem 0 .2rem; }
+  .day { margin: 0; font-size: clamp(2.3rem, 10.5vw, 3.6rem); }
+  .with { margin: 1.1rem 0 0; font-style: italic; font-size: 1.35rem; }
+  .with b { font-style: normal; font-weight: 700; letter-spacing: .08em; color: var(--fuchsia); }
+  #count { display: inline-block; margin-top: 1.5rem; padding: .5rem 1.6rem; border-radius: 999px; background: var(--olive); color: var(--cream); font-style: italic; }
+  .small { margin: 1.4rem auto 0; max-width: 28ch; }
+
+  .sign { padding: 3.5rem 0 6.5rem; }
+  .sign p { margin: 0; font-style: italic; }
+  .sign .script { font-style: normal; font-size: clamp(3.2rem, 15vw, 4.6rem); line-height: 1.15; color: var(--fuchsia); margin-top: .6rem; }
+  .sign .ps { margin-top: 1.6rem; font-size: 1.1rem; opacity: .85; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <radialGradient id="gF" cx="50%" cy="100%" r="100%"><stop offset="0" stop-color="#4E0B2A"/><stop offset=".5" stop-color="#B0235F"/><stop offset="1" stop-color="#E77FA6"/></radialGradient>
+    <radialGradient id="gP" cx="50%" cy="100%" r="100%"><stop offset="0" stop-color="#C2256B"/><stop offset=".45" stop-color="#F0A3BD"/><stop offset="1" stop-color="#FCE9EA"/></radialGradient>
+    <radialGradient id="gO" cx="50%" cy="100%" r="100%"><stop offset="0" stop-color="#A63C14"/><stop offset=".5" stop-color="#E2783A"/><stop offset="1" stop-color="#F8C592"/></radialGradient>
+    <radialGradient id="gW" cx="50%" cy="100%" r="100%"><stop offset="0" stop-color="#D2C56B"/><stop offset=".4" stop-color="#F6EFD2"/><stop offset="1" stop-color="#FFFDF4"/></radialGradient>
+    <linearGradient id="gL" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#173A2A"/><stop offset="1" stop-color="#5C8A52"/></linearGradient>
+    <linearGradient id="gB" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#D0337A"/><stop offset="1" stop-color="#8E1548"/></linearGradient>
+    <linearGradient id="gR" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F3A460"/><stop offset="1" stop-color="#D5652A"/></linearGradient>
+  </defs>
+</svg>
+
+<div id="garden" aria-hidden="true"></div>
+
+<main>
+  <section id="gift">
+    <div class="frame">
+      <span class="script">per</span>
+      <h1 class="caps">Andreina</h1>
+    </div>
+    <svg id="box" viewBox="0 0 200 200" role="button" tabindex="0" aria-label="Apri il regalo">
+      <rect x="34" y="84" width="132" height="100" rx="6" fill="url(#gB)"/>
+      <rect x="34" y="84" width="132" height="14" fill="#6E0F38" opacity=".55"/>
+      <rect x="88" y="84" width="24" height="100" fill="url(#gR)"/>
+      <g id="lid">
+        <rect x="24" y="58" width="152" height="32" rx="6" fill="url(#gB)"/>
+        <rect x="88" y="58" width="24" height="32" fill="url(#gR)"/>
+        <path d="M100 58 C70 18 42 30 54 48 C62 60 88 58 100 58Z" fill="url(#gR)"/>
+        <path d="M100 58 C130 18 158 30 146 48 C138 60 112 58 100 58Z" fill="url(#gR)"/>
+        <circle cx="100" cy="56" r="8" fill="#F3A460"/>
+      </g>
+    </svg>
+    <button id="open" type="button">Apri il regalo</button>
+  </section>
+
+  <section id="reveal">
+    <div class="intro"><div class="col">
+      <p class="script">Buon compleanno, Andreina</p>
+      <h2 id="title" class="caps" tabindex="-1">Avevamo pensato di regalarti una borsa di Furla.</h2>
+      <p class="punch">Poi ci siamo dette: perché comprarla, quando puoi fartela tu?</p>
+    </div></div>
+
+    <div class="what">
+      <div class="ribbon" aria-hidden="true"><div class="track" id="track"></div></div>
+      <div class="col">
+        <h3 class="caps">Il tuo regalo è un pomeriggio così</h3>
+        <ul>
+          <li>
+            <svg viewBox="0 0 120 120" aria-hidden="true">
+              <g fill="#FBF9EE"><circle cx="40" cy="40" r="34"/><circle cx="80" cy="40" r="34"/><circle cx="40" cy="80" r="34"/><circle cx="80" cy="80" r="34"/></g>
+              <g transform="translate(26 24) scale(.68)">
+                <path d="M24 52 H76 L68 92 H32Z" fill="url(#gR)"/>
+                <circle cx="34" cy="46" r="15" fill="#F0A3BD"/><circle cx="66" cy="46" r="15" fill="#F0A3BD"/>
+                <circle cx="50" cy="34" r="18" fill="#F7C6D4"/><circle cx="50" cy="14" r="7" fill="#B0235F"/>
+              </g>
+            </svg>
+            <strong class="caps">Una merenda come si deve</strong>
+            <span>In un posto molto carino, con dolci che meritano di essere fotografati <em>prima</em> di sparire.</span>
+          </li>
+          <li>
+            <svg viewBox="0 0 120 120" aria-hidden="true">
+              <g fill="#F0CBD3"><circle cx="60" cy="36" r="34"/><circle cx="60" cy="84" r="34"/><circle cx="36" cy="60" r="34"/><circle cx="84" cy="60" r="34"/></g>
+              <g transform="translate(26 24) scale(.68)">
+                <path d="M32 44 C32 8 68 8 68 44" fill="none" stroke="#26361F" stroke-width="5" stroke-linecap="round"/>
+                <path d="M18 42 H82 L74 88 Q50 96 26 88Z" fill="url(#gB)"/>
+                <g fill="none" stroke="#F0A3BD" stroke-width="2.2"><path d="M22 54 H78M24 66 H76M26 78 H74"/><path d="M36 42 V90M50 42 V92M64 42 V90"/></g>
+              </g>
+            </svg>
+            <strong class="caps">Una borsa all'uncinetto</strong>
+            <span>Creata da te, punto dopo punto. Pezzo unico, <em>firmato Andreina</em>.</span>
+          </li>
+          <li>
+            <svg viewBox="0 0 120 120" aria-hidden="true">
+              <g fill="#FBF9EE"><circle cx="40" cy="40" r="34"/><circle cx="80" cy="40" r="34"/><circle cx="40" cy="80" r="34"/><circle cx="80" cy="80" r="34"/></g>
+              <g id="duo"></g>
+            </svg>
+            <strong class="caps">Noi tre al tuo fianco</strong>
+            <span>A fare il tifo, a sbagliare i punti e a finire i tuoi dolci <em>se ti distrai</em>.</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="when">
+      <div class="scallop c"></div>
+      <div class="col">
+        <svg class="bouquet" id="bouquet" viewBox="0 0 300 210" aria-hidden="true"></svg>
+        <p class="script">Tieniti libera</p>
+        <p class="day caps">Domenica 8 novembre</p>
+        <p class="with">un'esperienza firmata <b>BAO</b></p>
+        <div id="count" hidden></div>
+        <p class="small">A orario e indirizzo pensiamo noi. Tu porta solo l'appetito.</p>
+      </div>
+    </div>
+
+    <div class="sign">
+      <div class="scallop k"></div>
+      <div class="col" style="padding-top:3rem">
+        <p>Con tutto il nostro affetto,</p>
+        <p class="script">Erica, Monia<br>&amp; Martina</p>
+        <p class="ps">P.S. Furla può attendere.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+(function () {
+  var ROUND = 'M50 50 C28 40 24 12 50 5 C76 12 72 40 50 50Z';
+  var POINT = 'M50 50 C35 38 38 16 50 1 C62 16 65 38 50 50Z';
+
+  function petals(d, grad, n, off, scale, rib) {
+    var s = '';
+    for (var i = 0; i < n; i++) {
+      var t = 'rotate(' + (i * 360 / n + off) + ' 50 50)' + (scale !== 1 ? ' translate(50 50) scale(' + scale + ') translate(-50 -50)' : '');
+      s += '<g transform="' + t + '"><path d="' + d + '" fill="url(#' + grad + ')"/>' +
+           (rib ? '<path d="M50 46 V10" stroke="' + rib + '" stroke-width="1" opacity=".55" fill="none"/>' : '') + '</g>';
+    }
+    return s;
+  }
+  function poppy(grad, core, dots) {
+    var s = petals(ROUND, grad, 7, 0, 1) + petals(ROUND, grad, 7, 26, .72);
+    s += '<circle cx="50" cy="50" r="9" fill="' + core + '"/>';
+    for (var i = 0; i < 12; i++) {
+      var a = i * Math.PI / 6;
+      s += '<circle cx="' + (50 + Math.cos(a) * 11).toFixed(1) + '" cy="' + (50 + Math.sin(a) * 11).toFixed(1) + '" r="1.8" fill="' + dots + '"/>';
+    }
+    return s;
+  }
+  function lily(grad, rib) {
+    var s = petals(POINT, grad, 3, 0, 1, rib) + petals(POINT, grad, 3, 60, .9, rib);
+    for (var i = 0; i < 6; i++) {
+      var a = i * Math.PI / 3 + .5, x = 50 + Math.cos(a) * 17, y = 50 + Math.sin(a) * 17;
+      s += '<path d="M50 50 L' + x.toFixed(1) + ' ' + y.toFixed(1) + '" stroke="#E9D9A0" stroke-width="1"/>' +
+           '<ellipse cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" rx="2.6" ry="1.4" fill="#7A2A12" transform="rotate(' + (a * 57.3 + 90).toFixed(0) + ' ' + x.toFixed(1) + ' ' + y.toFixed(1) + ')"/>';
+    }
+    return s + '<circle cx="50" cy="50" r="3" fill="#C9D08A"/>';
+  }
+  var shapes = {
+    fux: function () { return poppy('gF', '#2A0A18', '#F3C46A'); },
+    ora: function () { return poppy('gO', '#3A1A0A', '#F6DC8A'); },
+    whi: function () { return poppy('gW', '#B9A93F', '#7C6A1E'); },
+    lilP: function () { return lily('gP', '#B0235F'); },
+    lilW: function () { return lily('gW', '#B9A93F'); },
+    leaf: function () { return '<path d="M50 97 C10 64 20 24 50 3 C80 24 90 64 50 97Z" fill="url(#gL)"/><path d="M50 94 V12 M50 70 L30 54 M50 70 L70 54 M50 50 L34 36 M50 50 L66 36" stroke="#12301F" stroke-width="1.5" fill="none" opacity=".6"/>'; },
+    mac: function () { return '<path d="M12 46 A38 26 0 0 1 88 46Z" fill="#F0A3BD"/><rect x="14" y="46" width="72" height="10" rx="5" fill="#FBF9EE"/><path d="M12 56 A38 26 0 0 0 88 56Z" fill="#E88BAC"/>'; },
+    cup: function () { return '<path d="M24 52 H76 L68 92 H32Z" fill="url(#gR)"/><circle cx="34" cy="46" r="15" fill="#F7C6D4"/><circle cx="66" cy="46" r="15" fill="#F7C6D4"/><circle cx="50" cy="34" r="18" fill="#FBF9EE"/><circle cx="50" cy="14" r="7" fill="#B0235F"/>'; },
+    don: function () { return '<circle cx="50" cy="50" r="27" fill="none" stroke="#E9B878" stroke-width="26"/><circle cx="50" cy="50" r="29" fill="none" stroke="#C2256B" stroke-width="15"/>'; }
+  };
+  function svg(kind, size) {
+    return '<svg viewBox="0 0 100 100" width="' + size + '" height="' + size + '">' + shapes[kind]() + '</svg>';
+  }
+  function head(kind, x, y, s, r) {
+    return '<g transform="translate(' + x + ' ' + y + ') rotate(' + (r || 0) + ') scale(' + s + ') translate(-50 -50)">' + shapes[kind]() + '</g>';
+  }
+
+  // sfondo: composizioni in alto e in basso, qualche fiore sfocato in primo piano
+  var layout = [
+    ['leaf', 4, 2, 190, -50, 0], ['leaf', 22, -2, 150, 25, 0], ['leaf', 90, 1, 180, 60, 0],
+    ['lilP', 6, 7, 210, 20, 0], ['whi', 34, 1, 90, 0, 0], ['fux', 93, 5, 170, 0, 0], ['ora', 70, 0, 100, 10, 1.5],
+    ['mac', 80, 13, 44, -15, 0], ['cup', 4, 33, 50, -12, 0],
+    ['ora', 101, 44, 120, 0, 5], ['lilW', -2, 60, 130, 70, 4],
+    ['leaf', 0, 95, 190, 135, 0], ['leaf', 98, 92, 200, -140, 0], ['leaf', 70, 101, 150, -60, 0],
+    ['ora', 8, 96, 170, 0, 0], ['lilP', 92, 95, 230, -40, 0], ['fux', 34, 101, 110, 0, 2], ['don', 60, 95, 44, 0, 0], ['whi', 74, 99, 80, 0, 0]
+  ];
+  var html = '';
+  layout.forEach(function (d, i) {
+    html += svg(d[0], d[3]).replace('<svg', '<svg style="left:' + d[1] + '%;top:' + d[2] + '%;--r:' + d[4] + 'deg;--b:' + d[5] + 'px;--d:-' + (i * 0.6) + 's"');
+  });
+  document.getElementById('garden').innerHTML = html;
+
+  // nastro
+  var piece = '<span>Buon compleanno Andreina</span><i>✿</i><span>merenda e uncinetto</span><i>✿</i><span>8 novembre</span><i>✿</i>';
+  document.getElementById('track').innerHTML = piece + piece + piece + piece;
+
+  // "noi tre": tre fiori vicini
+  document.getElementById('duo').innerHTML = head('fux', 42, 62, .52, 0) + head('ora', 80, 68, .46, 20) + head('lilP', 62, 34, .46, 0);
+
+  // mazzo sopra la data
+  var stem = 'fill="none" stroke="#4E7A45" stroke-width="3" stroke-linecap="round"';
+  document.getElementById('bouquet').innerHTML =
+    '<path d="M150 208 C150 150 140 110 150 70" ' + stem + '/>' +
+    '<path d="M140 208 C120 170 80 150 62 104" ' + stem + '/>' +
+    '<path d="M160 208 C180 170 222 160 240 112" ' + stem + '/>' +
+    '<path d="M148 150 C120 140 112 120 116 104 C136 112 148 128 148 150Z" fill="url(#gL)"/>' +
+    '<path d="M168 180 C196 176 208 160 208 144 C188 148 172 160 168 180Z" fill="url(#gL)"/>' +
+    '<path d="M118 176 C98 180 84 172 78 158 C96 154 112 162 118 176Z" fill="url(#gL)"/>' +
+    head('lilW', 150, 62, 1.25, 0) + head('fux', 58, 96, .95, -10) + head('ora', 244, 104, .9, 15);
+
+  // apertura
+  var box = document.getElementById('box'), btn = document.getElementById('open');
+  var gift = document.getElementById('gift'), reveal = document.getElementById('reveal');
+  var calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches, opened = false;
+
+  function burst() {
+    var kinds = ['fux', 'lilP', 'ora', 'mac', 'whi', 'cup', 'lilW', 'don', 'leaf'];
+    for (var i = 0; i < 36; i++) {
+      var el = document.createElement('div');
+      el.className = 'bit';
+      el.innerHTML = svg(kinds[i % kinds.length], 30 + Math.random() * 40);
+      document.body.appendChild(el);
+      var ang = Math.random() * Math.PI * 2, dist = 140 + Math.random() * Math.max(innerWidth, innerHeight) * 0.6;
+      var x = Math.cos(ang) * dist, y = Math.sin(ang) * dist - 80, rot = (Math.random() - 0.5) * 720;
+      var a = el.animate([
+        { transform: 'translate(-50%,-50%) scale(.2)', opacity: 1 },
+        { transform: 'translate(calc(-50% + ' + x + 'px), calc(-50% + ' + y + 'px)) rotate(' + rot + 'deg) scale(1)', opacity: 1, offset: 0.7 },
+        { transform: 'translate(calc(-50% + ' + x * 1.1 + 'px), calc(-50% + ' + (y + 120) + 'px)) rotate(' + rot * 1.2 + 'deg) scale(1)', opacity: 0 }
+      ], { duration: 1500 + Math.random() * 700, easing: 'cubic-bezier(.15,.7,.3,1)', fill: 'forwards' });
+      a.onfinish = (function (n) { return function () { n.remove(); }; })(el);
+    }
+  }
+  function openGift() {
+    if (opened) return;
+    opened = true;
+    box.classList.add('open');
+    btn.disabled = true;
+    if (!calm) setTimeout(burst, 250);
+    setTimeout(function () { gift.classList.add('gone'); }, calm ? 0 : 900);
+    setTimeout(function () {
+      gift.style.display = 'none';
+      reveal.classList.add('on');
+      window.scrollTo(0, 0);
+      requestAnimationFrame(function () { requestAnimationFrame(function () {
+        reveal.classList.add('in');
+        document.getElementById('title').focus({ preventScroll: true });
+      }); });
+    }, calm ? 100 : 1400);
+  }
+  btn.addEventListener('click', openGift);
+  box.addEventListener('click', openGift);
+  box.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openGift(); }
+  });
+
+  // conto alla rovescia
+  var now = new Date(), today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  var days = Math.round((new Date(2026, 10, 8) - today) / 86400000);
+  var count = document.getElementById('count');
+  if (days >= 0) {
+    count.textContent = days === 0 ? 'È oggi!' : days === 1 ? 'Manca un giorno solo' : 'Mancano ' + days + ' giorni';
+    count.hidden = false;
+  }
+})();
+</script>
+</body>
+</html>
